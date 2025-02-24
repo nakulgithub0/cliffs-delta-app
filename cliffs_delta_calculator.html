@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliff's Delta Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; }
+        textarea { width: 100%; height: 150px; margin-bottom: 10px; padding: 10px; font-size: 14px; }
+        button { padding: 10px 20px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .result { margin-top: 20px; padding: 10px; background-color: #e9ecef; }
+    </style>
+</head>
+<body>
+    <h1>Cliff's Delta Calculator</h1>
+    <p>Paste the values for the two groups (comma or newline-separated):</p>
+
+    <h3>Treated Group:</h3>
+    <textarea id="treated" placeholder="Enter values separated by commas or new lines..."></textarea>
+
+    <h3>Control Group:</h3>
+    <textarea id="control" placeholder="Enter values separated by commas or new lines..."></textarea>
+
+    <button onclick="calculateCliffsDelta()">Calculate Cliff's Delta</button>
+
+    <div class="result" id="result"></div>
+
+    <script>
+        function parseInput(input) {
+            return input.split(/[,\s]+/).map(Number).filter(n => !isNaN(n) && n !== 0);
+        }
+
+        function calculateCliffsDelta() {
+            const treated = parseInput(document.getElementById("treated").value);
+            const control = parseInput(document.getElementById("control").value);
+
+            if (treated.length === 0 || control.length === 0) {
+                document.getElementById("result").innerHTML = "Please enter valid non-zero values for both groups.";
+                return;
+            }
+
+            let greater = 0, lesser = 0;
+            for (let x of treated) {
+                for (let y of control) {
+                    if (x > y) greater++;
+                    else if (x < y) lesser++;
+                }
+            }
+
+            const n1 = treated.length;
+            const n2 = control.length;
+            const delta = (greater - lesser) / (n1 * n2);
+
+            let interpretation;
+            if (Math.abs(delta) < 0.147) interpretation = "Small Effect";
+            else if (Math.abs(delta) < 0.33) interpretation = "Medium Effect";
+            else interpretation = "Large Effect";
+
+            document.getElementById("result").innerHTML = `
+                <strong>Cliff's Delta:</strong> ${delta.toFixed(3)}<br>
+                <strong>Effect Size Interpretation:</strong> ${interpretation}
+            `;
+        }
+    </script>
+</body>
+</html>
